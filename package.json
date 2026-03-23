@@ -1,0 +1,58 @@
+{
+  "name": "pptb-dual-write-map-viewer",
+  "version": "0.0.1",
+  "displayName": "Dual-Write Map Viewer",
+  "description": "A PPTB Tool for visualising and documenting Dual-Write maps",
+  "main": "index.html",
+  "author": "Oliver Flint",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OliverFlint/pptb-dual-write-map-viewer"
+  },
+  "icon": "icons/app-icon.svg",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "watch": "vite build --watch",
+    "preview": "vite preview",
+    "finalize-package": "npm shrinkwrap",
+    "validate": "pptb-validate"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "^9.72.7",
+    "@fluentui/react-icons": "^2.0.314",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@pptb/types": "^1.2.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^7.1.11"
+  },
+  "files": [
+    "dist",
+    "npm-shrinkwrap.json"
+  ],
+  "contributors": [
+    {
+      "name": "Oliver Flint",
+      "url": "https://oliverflint.co.uk"
+    }
+  ],
+  "features": {
+    "minAPI": "1.2.0",
+    "multiConnection": "none"
+  },
+  "configurations": {
+    "repository": "https://github.com/OliverFlint/pptb-dual-write-map-viewer",
+    "readmeUrl": "https://raw.githubusercontent.com/OliverFlint/pptb-dual-write-map-viewer/refs/heads/main/README.md",
+    "website": "https://github.com/OliverFlint/pptb-dual-write-map-viewer"
+  }
+}
