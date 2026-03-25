@@ -60,7 +60,7 @@
   },
   "configurations": {
     "repository": "https://github.com/OliverFlint/pptb-dual-write-map-viewer",
-    "readmeUrl": "https://raw.githubusercontent.com/OliverFlint/pptb-dual-write-map-viewer/refs/heads/main/README.md",
+    "readmeUrl": "https://raw.githubusercontent.com/OliverFlint/pptb-dual-write-map-viewer/refs/heads/master/README.md",
     "website": "https://github.com/OliverFlint/pptb-dual-write-map-viewer"
   }
 }
