@@ -1,11 +1,11 @@
-# Dual-Write Map Viewer
+# Dual Write Map Viewer
 
-A Power Platform ToolBox tool for visualising and documenting Dual-Write maps in Microsoft Dataverse.
+A Power Platform ToolBox tool for visualising and documenting Dual Write maps in Microsoft Dataverse.
 
 ## Features
 
 - ✅ **Solution Filtering** - Select a solution to view only its Dual-Write maps
-- ✅ **Interactive Map Viewer** - Browse and select Dual-Write maps from a solution
+- ✅ **Interactive Map Viewer** - Browse and select Dual Write maps from a solution
 - ✅ **Multiple View Tabs**:
   - **Details** - View field mappings with sync directions (→, ←, ⇆), default values, and value maps
   - **Markdown** - Generate formatted markdown documentation of the mapping
@@ -17,12 +17,12 @@ A Power Platform ToolBox tool for visualising and documenting Dual-Write maps in
 
 ## Installation
 
-Install the Power Platform ToolBox @ https://www.powerplatformtoolbox.com/ and select the 'Dual-Write Map Viewer' tool from the marketplace.
+Install the Power Platform ToolBox @ https://www.powerplatformtoolbox.com/ and select the 'Dual Write Map Viewer' tool from the marketplace.
 
 ## Usage
 
 1. Connect to a Dataverse environment using Power Platform ToolBox
-2. Select a solution from the dropdown to view its Dual-Write maps
+2. Select a solution from the dropdown to view its Dual Write maps
 3. Click on a map to view its details in the preview panel
 4. Use the tabs to switch between:
    - **Details** - Field mappings, value maps, and sync directions

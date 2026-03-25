@@ -1,7 +1,7 @@
 {
   "name": "pptb-dual-write-map-viewer",
-  "version": "0.0.2",
-  "displayName": "Dual-Write Map Viewer",
+  "version": "0.0.3",
+  "displayName": "Dual Write Map Viewer",
   "description": "A PPTB Tool for visualising and documenting Dual-Write maps",
   "main": "index.html",
   "author": "Oliver Flint",
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/OliverFlint/pptb-dual-write-map-viewer"
   },
-  "icon": "src/icons/app-icon.svg",
+  "icon": "icons/app-icon.svg",
   "engines": {
     "node": ">=18.0.0"
   },
