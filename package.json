@@ -1,6 +1,6 @@
 {
   "name": "pptb-dual-write-map-viewer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "Dual-Write Map Viewer",
   "description": "A PPTB Tool for visualising and documenting Dual-Write maps",
   "main": "index.html",
