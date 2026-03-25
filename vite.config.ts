@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import type { Plugin } from 'vite';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import type { Plugin } from "vite";
 
 /**
  * Plugin to fix HTML for PPTB compatibility
@@ -8,56 +8,59 @@ import type { Plugin } from 'vite';
  * - Moves script tags from head to end of body so DOM is ready when IIFE executes
  */
 function fixHtmlForPPTB(): Plugin {
-    return {
-        name: 'fix-html-for-pptb',
-        enforce: 'post',
-        transformIndexHtml(html) {
-            // Remove type="module" and crossorigin from script tags
-            // IIFE format doesn't need module type, and file:// URLs don't need crossorigin
-            html = html.replace(/\s*type="module"/g, '');
-            html = html.replace(/\s*crossorigin/g, '');
-            // Clean up extra spaces around attributes
-            html = html.replace(/\s+>/g, '>');
-            
-            // Move script tags from head to end of body
-            // IIFE executes immediately, so DOM must be ready
-            const scriptRegex = /(<script[^>]*src="[^"]*"[^>]*><\/script>)/g;
-            const scripts: string[] = [];
-            
-            // Extract all script tags
-            html = html.replace(scriptRegex, (match) => {
-                scripts.push(match);
-                return ''; // Remove from current position
-            });
-            
-            // Insert scripts before closing body tag
-            if (scripts.length > 0) {
-                const scriptsHtml = '\n  ' + scripts.join('\n  ');
-                html = html.replace('</body>', scriptsHtml + '\n</body>');
-            }
-            
-            return html;
-        },
-    };
+  return {
+    name: "fix-html-for-pptb",
+    enforce: "post",
+    transformIndexHtml(html) {
+      // Remove type="module" and crossorigin from script tags
+      // IIFE format doesn't need module type, and file:// URLs don't need crossorigin
+      html = html.replace(/\s*type="module"/g, "");
+      html = html.replace(/\s*crossorigin/g, "");
+      // Clean up extra spaces around attributes
+      html = html.replace(/\s+>/g, ">");
+
+      // Move script tags from head to end of body
+      // IIFE executes immediately, so DOM must be ready
+      const scriptRegex = /(<script[^>]*src="[^"]*"[^>]*><\/script>)/g;
+      const scripts: string[] = [];
+
+      // Extract all script tags
+      html = html.replace(scriptRegex, (match) => {
+        scripts.push(match);
+        return ""; // Remove from current position
+      });
+
+      // Insert scripts before closing body tag
+      if (scripts.length > 0) {
+        const scriptsHtml = "\n  " + scripts.join("\n  ");
+        html = html.replace("</body>", scriptsHtml + "\n</body>");
+      }
+
+      return html;
+    },
+  };
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((configEnv) => {
+  return {
     plugins: [react(), fixHtmlForPPTB()],
-    base: './',
+    base: "./",
     build: {
-        outDir: 'dist',
-        assetsDir: 'assets',
-        rollupOptions: {
-            output: {
-                // Use IIFE format for compatibility with iframe srcdoc loading
-                // ES modules can have issues when loaded via file:// URLs in iframes
-                format: 'iife',
-                // Bundle everything into a single file to avoid module loading issues
-                inlineDynamicImports: true,
-                // Disable chunking since we're bundling everything
-                manualChunks: undefined,
-            },
+      sourcemap: configEnv.mode === "development",
+      outDir: "dist",
+      assetsDir: "assets",
+      rollupOptions: {
+        output: {
+          // Use IIFE format for compatibility with iframe srcdoc loading
+          // ES modules can have issues when loaded via file:// URLs in iframes
+          format: "iife",
+          // Bundle everything into a single file to avoid module loading issues
+          inlineDynamicImports: true,
+          // Disable chunking since we're bundling everything
+          manualChunks: undefined,
         },
+      },
     },
+  };
 });
