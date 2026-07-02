@@ -27,14 +27,19 @@ function App() {
   const { addLog } = useEventLog();
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [solutionRefresh, setSolutionRefresh] = useState(0);
-  const { solutions, isLoading: solutionsLoading, message: solutionsMessage } = useSolutionList([
-    connection,
-    solutionRefresh,
-  ]);
+  const {
+    solutions,
+    isLoading: solutionsLoading,
+    message: solutionsMessage,
+  } = useSolutionList([connection, solutionRefresh]);
   const [selectedSolutionId, setSelectedSolutionId] = useState<
     string | undefined
   >(undefined);
-  const { maps, isLoading: mapsLoading, message: mapsMessage } = useDualWriteMaps(selectedSolutionId);
+  const {
+    maps,
+    isLoading: mapsLoading,
+    message: mapsMessage,
+  } = useDualWriteMaps(selectedSolutionId);
   const [selectedMap, setSelectedMap] = useState<DualWriteMap | undefined>(
     undefined,
   );
@@ -83,16 +88,11 @@ function App() {
   }, []);
 
   return (
-    <FluentProvider
-      theme={theme === "dark" ? webDarkTheme : webLightTheme}
-      style={{ maxWidth: "98%", maxHeight: "98%" }}
-    >
+    <FluentProvider theme={theme === "dark" ? webDarkTheme : webLightTheme}>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          maxWidth: "98%",
-          maxHeight: "98%",
         }}
       >
         {solutionsLoading || mapsLoading ? (

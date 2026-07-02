@@ -1,6 +1,6 @@
 {
   "name": "pptb-dual-write-map-viewer",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "displayName": "Dual Write Map Viewer",
   "description": "A PPTB Tool for visualising and documenting Dual-Write maps",
   "main": "index.html",
@@ -27,6 +27,7 @@
     "@fluentui/react-components": "^9.72.7",
     "@fluentui/react-icons": "^2.0.314",
     "@types/mustache": "^4.2.6",
+    "mermaid": "^11.16.0",
     "mustache": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

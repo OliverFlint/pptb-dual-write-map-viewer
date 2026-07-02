@@ -9,6 +9,7 @@ A Power Platform ToolBox tool for visualising and documenting Dual Write maps in
 - ✅ **Multiple View Tabs**:
   - **Details** - View field mappings with sync directions (→, ←, ⇆), default values, and value maps
   - **Markdown** - Generate formatted markdown documentation of the mapping
+  - **Diagram** - Mermaid diagram generation
   - **Source** - View the raw JSON mapping data
 - ✅ **React 18 with TypeScript** - Modern UI framework with type safety
 - ✅ **Fluent UI Components** - Microsoft Fluent design system
@@ -28,7 +29,7 @@ Install the Power Platform ToolBox @ https://www.powerplatformtoolbox.com/ and s
    - **Details** - Field mappings, value maps, and sync directions
    - **Markdown** - Copy-paste ready documentation
    - **Source** - Raw JSON mapping data
-   - **Diagram** - COMING SOON!
+   - **Diagram** - Mermaid diagram generation
 
 ## Structure
 

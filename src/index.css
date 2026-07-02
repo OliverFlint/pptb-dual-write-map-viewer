@@ -10,3 +10,9 @@ body {
     "Arial", sans-serif;
   line-height: 1.6;
 }
+
+label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
