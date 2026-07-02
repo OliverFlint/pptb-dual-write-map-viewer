@@ -17,10 +17,13 @@ export type DualWriteMap = {
 
 export const useSolutionList = (deps: React.DependencyList) => {
   const [solutions, setSolutions] = useState<Solution[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const { addLog } = useEventLog();
 
   useEffect(() => {
-    window.toolboxAPI.utils.showLoading("Loading solutions...");
+    setIsLoading(true);
+    setMessage("Loading solutions...");
     window.dataverseAPI
       .getSolutions(
         ["solutionid", "uniquename", "friendlyname", "version", "ismanaged"],
@@ -45,19 +48,23 @@ export const useSolutionList = (deps: React.DependencyList) => {
         addLog("Error fetching solutions: " + error.message, "error");
       })
       .finally(() => {
-        window.toolboxAPI.utils.hideLoading();
+        setIsLoading(false);
+        setMessage("");
       });
   }, deps);
 
-  return { solutions };
+  return { solutions, isLoading, message };
 };
 
 export const useDualWriteMaps = (solutionId?: string) => {
   const [maps, setMaps] = useState<DualWriteMap[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const { addLog } = useEventLog();
 
   useEffect(() => {
-    window.toolboxAPI.utils.showLoading("Loading dual write maps...");
+    setIsLoading(true);
+    setMessage("Loading dual write maps...");
     window.dataverseAPI
       .queryData(
         `msdyn_dualwriteentitymaps?$select=msdyn_dualwriteentitymapid,msdyn_displayname,msdyn_mapping,solutionid&$filter=solutionid eq ${solutionId}`,
@@ -79,9 +86,10 @@ export const useDualWriteMaps = (solutionId?: string) => {
         addLog("Error fetching dual write maps: " + error.message, "error");
       })
       .finally(() => {
-        window.toolboxAPI.utils.hideLoading();
+        setIsLoading(false);
+        setMessage("");
       });
   }, [solutionId]);
 
-  return { maps };
+  return { maps, isLoading, message };
 };

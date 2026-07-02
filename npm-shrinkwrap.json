@@ -1,12 +1,12 @@
 {
   "name": "pptb-dual-write-map-viewer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "pptb-dual-write-map-viewer",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "license": "MIT",
       "dependencies": {
         "@fluentui/react-components": "^9.72.7",
@@ -21,7 +21,7 @@
         "remark-gfm": "^4.0.1"
       },
       "devDependencies": {
-        "@pptb/types": "^1.2.0",
+        "@pptb/types": "^1.2.3",
         "@types/react": "^18.3.12",
         "@types/react-dom": "^18.3.1",
         "@types/react-syntax-highlighter": "^15.5.13",
@@ -2447,9 +2447,9 @@
       }
     },
     "node_modules/@pptb/types": {
-      "version": "1.2.0",
-      "resolved": "https://registry.npmjs.org/@pptb/types/-/types-1.2.0.tgz",
-      "integrity": "sha512-0n02+gHiU+T+Rrp0FkX2DHyv3m7LKrraQfV11INWiFvqY5j181ToottLMdbjYborpjsVtoTcfGpM0RpDmfA8Xw==",
+      "version": "1.2.3",
+      "resolved": "https://registry.npmjs.org/@pptb/types/-/types-1.2.3.tgz",
+      "integrity": "sha512-6IvbIASYlqpyT6BPa/hVDMlE45u16aDKCrtPZO/WYrJSnOp5icfNHfYwPxJ6iUwmjKB7LNNTX/g3DGJxf+TVdw==",
       "dev": true,
       "license": "GPL-3.0",
       "bin": {

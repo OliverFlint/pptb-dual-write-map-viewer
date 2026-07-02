@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   FluentProvider,
+  ProgressBar,
   webLightTheme,
   webDarkTheme,
   Toolbar,
@@ -26,11 +27,14 @@ function App() {
   const { addLog } = useEventLog();
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [solutionRefresh, setSolutionRefresh] = useState(0);
-  const { solutions } = useSolutionList([connection, solutionRefresh]);
+  const { solutions, isLoading: solutionsLoading, message: solutionsMessage } = useSolutionList([
+    connection,
+    solutionRefresh,
+  ]);
   const [selectedSolutionId, setSelectedSolutionId] = useState<
     string | undefined
   >(undefined);
-  const { maps } = useDualWriteMaps(selectedSolutionId);
+  const { maps, isLoading: mapsLoading, message: mapsMessage } = useDualWriteMaps(selectedSolutionId);
   const [selectedMap, setSelectedMap] = useState<DualWriteMap | undefined>(
     undefined,
   );
@@ -91,6 +95,26 @@ function App() {
           maxHeight: "98%",
         }}
       >
+        {solutionsLoading || mapsLoading ? (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--colorNeutralBackground3)",
+              backdropFilter: "blur(8px)",
+              zIndex: 1000,
+            }}
+          >
+            <ProgressBar style={{ width: "50%" }} />
+            <div style={{ marginTop: "1rem", fontSize: "0.875rem" }}>
+              {solutionsLoading ? solutionsMessage : mapsMessage}
+            </div>
+          </div>
+        ) : null}
         <div
           style={{
             backgroundColor: "var(--colorNeutralBackground3)",
