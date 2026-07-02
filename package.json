@@ -1,6 +1,6 @@
 {
   "name": "pptb-dual-write-map-viewer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "displayName": "Dual Write Map Viewer",
   "description": "A PPTB Tool for visualising and documenting Dual-Write maps",
   "main": "index.html",
@@ -36,7 +36,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
-    "@pptb/types": "^1.2.0",
+    "@pptb/types": "^1.2.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/react-syntax-highlighter": "^15.5.13",
