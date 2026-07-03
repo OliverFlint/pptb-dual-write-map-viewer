@@ -4,7 +4,6 @@ import {
   ProgressBar,
   webLightTheme,
   webDarkTheme,
-  Toolbar,
   ToolbarButton,
 } from "@fluentui/react-components";
 import {
@@ -93,6 +92,8 @@ function App() {
         style={{
           display: "flex",
           flexDirection: "column",
+          minHeight: "100vh",
+          backgroundColor: "var(--colorNeutralBackground2)",
         }}
       >
         {solutionsLoading || mapsLoading ? (
@@ -104,13 +105,13 @@ function App() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "var(--colorNeutralBackground3)",
+              backgroundColor: "var(--colorNeutralBackground2)",
               backdropFilter: "blur(8px)",
               zIndex: 1000,
             }}
           >
-            <ProgressBar style={{ width: "50%" }} />
-            <div style={{ marginTop: "1rem", fontSize: "0.875rem" }}>
+            <ProgressBar style={{ width: "250px" }} />
+            <div style={{ marginTop: "1.5rem", fontSize: "0.875rem", color: "var(--colorNeutralForeground2)" }}>
               {solutionsLoading ? solutionsMessage : mapsMessage}
             </div>
           </div>
@@ -118,12 +119,23 @@ function App() {
         <div
           style={{
             backgroundColor: "var(--colorNeutralBackground3)",
-            borderBottomColor: "var(--colorNeutralBackgroundInverted)",
-            borderBottomWidth: "1px",
-            borderBottomStyle: "solid",
+            borderBottom: "1px solid var(--colorNeutralStroke1)",
+            padding: "0.75rem 1rem",
           }}
         >
-          <Toolbar>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ flex: 1 }}>
+              <SolutionPicker
+                solutions={solutions}
+                onSolutionSelected={(data) => {
+                  setSelectedSolutionId(data.solutionId);
+                  addLog(
+                    `Selected solution: ${data.solutionName} (${data.solutionId})`,
+                    "info",
+                  );
+                }}
+              />
+            </div>
             <ToolbarButton
               aria-label="Refresh Solutions"
               appearance="primary"
@@ -137,24 +149,15 @@ function App() {
             >
               Refresh
             </ToolbarButton>
-            {/* <ToolbarDivider />
-            <ToolbarButton
-              aria-label="Generate Documentation"
-              appearance="primary"
-              title="Generate Documentation"
-              icon={<DocumentSaveRegular />}
-            >
-              Generate
-            </ToolbarButton> */}
-          </Toolbar>
+          </div>
         </div>
 
         <div
           style={{
             display: "flex",
-            flexDirection: "row",
-            maxWidth: "98%",
-            maxHeight: "98%",
+            flex: 1,
+            maxWidth: "100%",
+            overflow: "hidden",
           }}
         >
           <div
@@ -162,37 +165,25 @@ function App() {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              borderRightColor: "var(--colorNeutralBackgroundInverted)",
-              borderRightWidth: "1px",
-              borderRightStyle: "solid",
-              minWidth: "200px",
+              borderRight: "1px solid var(--colorNeutralStroke1)",
+              minWidth: "280px",
               maxWidth: "400px",
-              padding: "0.5rem",
+              padding: "1rem",
+              gap: "1rem",
             }}
           >
-            <SolutionPicker
-              solutions={solutions}
-              onSolutionSelected={(data) => {
-                setSelectedSolutionId(data.solutionId);
-                addLog(
-                  `Selected solution: ${data.solutionName} (${data.solutionId})`,
-                  "info",
-                );
-              }}
-            />
             <DualWriteMapList
               dualwritemaps={selectedSolutionId ? maps : undefined}
               onMapSelected={(data) => setSelectedMap(data.dualwritemap)}
             />
           </div>
-          <div
-            style={{
-              flex: 3,
-              display: "flex",
-              flexDirection: "column",
-              padding: "0.5rem",
-            }}
-          >
+<div
+           style={{
+             flex: 3,
+             padding: "1.5rem",
+             overflow: "auto",
+           }}
+         >
             <DualWriteMapPreview dualwritemap={selectedMap} />
           </div>
         </div>

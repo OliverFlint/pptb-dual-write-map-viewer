@@ -16,3 +16,27 @@ label {
   color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
+
+/* Custom scrollbar for better appearance */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--colorNeutralBackground3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--colorNeutralBackgroundInverted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--colorNeutralForeground3);
+}
+
+/* Syntax highlighter dark mode adjustments */
+:root[data-theme="dark"] .react-syntax-highlighter {
+  background: var(--colorNeutralBackground3) !important;
+}

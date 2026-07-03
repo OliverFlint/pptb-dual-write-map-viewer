@@ -11,42 +11,32 @@ import { DualWriteMap } from "../hooks/useDataverseApi";
 
 const useStyles = makeStyles({
   container: {
+    display: "flex",
+    flexDirection: "column",
     maxWidth: "100%",
+    height: "100%",
     maxHeight: "100%",
-    height: "90vh",
-  },
-  header: {
-    marginBottom: "0.5rem",
+    gap: "0.75rem",
   },
   search: {
-    marginBottom: "0.75rem",
+    width: "100%",
   },
   list: {
     overflowX: "auto",
-    overflowY: "hidden",
-    maxHeight: "82vh",
-    "& li": {
-      cursor: "pointer",
-    },
+    overflowY: "auto",
+    flex: 1,
+    maxHeight: "calc(100vh - 200px)",
   },
   selectedItem: {
     backgroundColor: "var(--colorNeutralBackground1Hover)",
     color: "var(--colorNeutralForeground1)",
-    "&::before": {
-      backgroundColor: "var(--colorBrandBackground)",
-      borderRadius: "2px",
-      left: "4px",
-      position: "absolute",
-      top: "4px",
-      bottom: "4px",
-      width: "3px",
-    },
-    position: "relative",
+    borderLeft: "3px solid var(--colorBrandBackground)",
+    paddingLeft: "calc(0.5rem - 3px)",
   },
   empty: {
     color: "var(--colorNeutralForeground3)",
     textAlign: "center",
-    padding: "2rem 0",
+    padding: "3rem 0",
   },
 });
 
@@ -69,10 +59,10 @@ export const DualWriteMapList = (props: DualWriteMapListProps) => {
 
   return (
     <div className={styles.container}>
-      <Subtitle2 className={styles.header}>Dual Write Maps:</Subtitle2>
+      <Subtitle2>Dual Write Maps:</Subtitle2>
       <SearchBox
         className={styles.search}
-        placeholder="Filter maps..."
+        placeholder="Search maps..."
         value={searchQuery}
         onChange={(_e, newValue) => setSearchQuery(newValue.value)}
         size="small"
