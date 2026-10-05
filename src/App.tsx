@@ -1,17 +1,30 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Badge,
+  Button,
+  Caption1,
+  Card,
   FluentProvider,
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
   ProgressBar,
-  webLightTheme,
-  webDarkTheme,
+  Text,
+  Title2,
   ToolbarButton,
+  webDarkTheme,
+  webLightTheme,
 } from "@fluentui/react-components";
+import {
+  ArrowCounterclockwiseFilled,
+  PlugConnected20Regular,
+  PlugDisconnected20Regular,
+} from "@fluentui/react-icons";
 import {
   useConnection,
   useEventLog,
   useToolboxEvents,
 } from "./hooks/useToolboxAPI";
-import { ArrowCounterclockwiseFilled } from "@fluentui/react-icons";
 import { SolutionPicker } from "./components/SolutionPicker";
 import { DualWriteMapList } from "./components/DualWriteMapList";
 import {
@@ -22,45 +35,33 @@ import {
 import { DualWriteMapPreview } from "./components/DualWriteMapPreview";
 
 function App() {
-  const { connection, refreshConnection } = useConnection();
+  const { connection, isLoading: connectionLoading, refreshConnection } = useConnection();
   const { addLog } = useEventLog();
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [solutionRefresh, setSolutionRefresh] = useState(0);
   const {
     solutions,
     isLoading: solutionsLoading,
-    message: solutionsMessage,
-  } = useSolutionList([connection, solutionRefresh]);
+    error: solutionsError,
+  } = useSolutionList(!!connection, connection?.id, solutionRefresh);
   const [selectedSolutionId, setSelectedSolutionId] = useState<
     string | undefined
   >(undefined);
   const {
     maps,
     isLoading: mapsLoading,
-    message: mapsMessage,
+    error: mapsError,
   } = useDualWriteMaps(selectedSolutionId);
-  const [selectedMap, setSelectedMap] = useState<DualWriteMap | undefined>(
-    undefined,
-  );
+  const [selectedMap, setSelectedMap] = useState<DualWriteMap | undefined>();
 
-  // Handle platform events
   const handleEvent = useCallback(
-    (event: string, _data: any) => {
-      switch (event) {
-        case "connection:updated":
-        case "connection:created":
-          refreshConnection();
-          break;
-
-        case "connection:deleted":
-          refreshConnection();
-          break;
-
-        case "terminal:output":
-        case "terminal:command:completed":
-        case "terminal:error":
-          // Terminal events handled by dedicated components
-          break;
+    (event: string) => {
+      if (
+        event === "connection:updated" ||
+        event === "connection:created" ||
+        event === "connection:deleted"
+      ) {
+        refreshConnection();
       }
     },
     [refreshConnection],
@@ -68,126 +69,184 @@ function App() {
 
   useToolboxEvents(handleEvent);
 
-  // Add initial log (run only once on mount)
   useEffect(() => {
-    addLog("React Sample Tool initialized", "success");
+    addLog("Dual Write Map Viewer initialized", "success");
   }, [addLog]);
 
-  // Get theme from Toolbox API
   useEffect(() => {
-    const getTheme = async () => {
-      try {
-        const currentTheme = await window.toolboxAPI.utils.getCurrentTheme();
-        setTheme(currentTheme === "dark" ? "dark" : "light");
-      } catch (error) {
-        console.error("Error getting theme:", error);
-      }
-    };
-    getTheme();
+    window.toolboxAPI.utils
+      .getCurrentTheme()
+      .then((currentTheme) => setTheme(currentTheme === "dark" ? "dark" : "light"))
+      .catch((error) => console.error("Error getting theme:", error));
   }, []);
+
+  const refresh = () => {
+    setSelectedSolutionId(undefined);
+    setSelectedMap(undefined);
+    setSolutionRefresh((previous) => previous + 1);
+  };
 
   return (
     <FluentProvider theme={theme === "dark" ? webDarkTheme : webLightTheme}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-          backgroundColor: "var(--colorNeutralBackground2)",
-        }}
-      >
-        {solutionsLoading || mapsLoading ? (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "var(--colorNeutralBackground2)",
-              backdropFilter: "blur(8px)",
-              zIndex: 1000,
-            }}
-          >
-            <ProgressBar style={{ width: "250px" }} />
-            <div style={{ marginTop: "1.5rem", fontSize: "0.875rem", color: "var(--colorNeutralForeground2)" }}>
-              {solutionsLoading ? solutionsMessage : mapsMessage}
+      <main className="app-shell">
+        <header className="topbar">
+          <div className="brand-lockup">
+            <div className="brand-mark" aria-hidden="true">
+              <img src="./icons/app-icon.svg" alt="" />
+            </div>
+            <div className="brand-copy">
+              <Title2 className="app-title">Dual Write Map Viewer</Title2>
             </div>
           </div>
-        ) : null}
-        <div
-          style={{
-            backgroundColor: "var(--colorNeutralBackground3)",
-            borderBottom: "1px solid var(--colorNeutralStroke1)",
-            padding: "0.75rem 1rem",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <div style={{ flex: 1 }}>
-              <SolutionPicker
-                solutions={solutions}
-                onSolutionSelected={(data) => {
-                  setSelectedSolutionId(data.solutionId);
-                  addLog(
-                    `Selected solution: ${data.solutionName} (${data.solutionId})`,
-                    "info",
-                  );
-                }}
-              />
-            </div>
-            <ToolbarButton
-              aria-label="Refresh Solutions"
-              appearance="primary"
-              title="Refresh Solutions"
-              icon={<ArrowCounterclockwiseFilled />}
-              onClick={() => {
-                setSelectedSolutionId(undefined);
-                setSelectedMap(undefined);
-                setSolutionRefresh((prev) => prev + 1);
-              }}
+          <div className="connection-state" aria-live="polite">
+            <Badge
+              appearance="tint"
+              color={connection ? "success" : connectionLoading ? "informative" : "danger"}
+              icon={connection ? <PlugConnected20Regular /> : <PlugDisconnected20Regular />}
             >
-              Refresh
-            </ToolbarButton>
+              {connection ? "Connected" : connectionLoading ? "Checking connection" : "No connection"}
+            </Badge>
+            {connection && (
+              <span className="connection-name" title={connection.url}>
+                {connection.name}
+              </span>
+            )}
           </div>
-        </div>
+        </header>
 
-        <div
-          style={{
-            display: "flex",
-            flex: 1,
-            maxWidth: "100%",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              borderRight: "1px solid var(--colorNeutralStroke1)",
-              minWidth: "280px",
-              maxWidth: "400px",
-              padding: "1rem",
-              gap: "1rem",
-            }}
-          >
-            <DualWriteMapList
-              dualwritemaps={selectedSolutionId ? maps : undefined}
-              onMapSelected={(data) => setSelectedMap(data.dualwritemap)}
+        <section className="workspace-toolbar" aria-label="Solution selection">
+          <div className="toolbar-label">
+            <Caption1 className="eyebrow">BROWSE BY SOLUTION</Caption1>
+            <Text className="toolbar-hint">
+              Choose a solution to explore its entity maps.
+            </Text>
+          </div>
+          <div className="solution-control">
+            <SolutionPicker
+              solutions={solutions}
+                isConnected={!!connection || connectionLoading}
+              onSolutionSelected={(data) => {
+                setSelectedSolutionId(data.solutionId);
+                setSelectedMap(undefined);
+                addLog(`Selected solution: ${data.solutionName}`, "info");
+              }}
             />
           </div>
-<div
-           style={{
-             flex: 3,
-             padding: "1.5rem",
-             overflow: "auto",
-           }}
-         >
-            <DualWriteMapPreview dualwritemap={selectedMap} />
+          <ToolbarButton
+            aria-label="Refresh solutions"
+            title="Refresh solutions"
+            icon={<ArrowCounterclockwiseFilled />}
+            onClick={refresh}
+          >
+            Refresh
+          </ToolbarButton>
+        </section>
+
+        {solutionsError && (
+          <MessageBar intent="error" className="status-message">
+            <MessageBarBody>
+              <MessageBarTitle>Unable to load solutions</MessageBarTitle>
+              {solutionsError}
+            </MessageBarBody>
+          </MessageBar>
+        )}
+        {mapsError && (
+          <MessageBar intent="error" className="status-message">
+            <MessageBarBody>
+              <MessageBarTitle>Unable to load maps</MessageBarTitle>
+              {mapsError}
+            </MessageBarBody>
+          </MessageBar>
+        )}
+
+        {(!connection || solutionsLoading || mapsLoading) && (
+          <div className="inline-status" aria-live="polite">
+            {!connection ? connectionLoading ? (
+              <>
+                <ProgressBar className="inline-progress" />
+                <Text>Checking ToolBox connection…</Text>
+              </>
+            ) : (
+              <>
+                <PlugDisconnected20Regular />
+                <div>
+                  <Text weight="semibold">Connect an environment to get started</Text>
+                  <Caption1>
+                    Select a Dataverse connection for this tool in Power Platform ToolBox.
+                  </Caption1>
+                </div>
+              </>
+            ) : (
+              <>
+                <ProgressBar className="inline-progress" />
+                <Text>{solutionsLoading ? "Loading solutions…" : "Loading Dual Write maps…"}</Text>
+              </>
+            )}
           </div>
+        )}
+
+        <div className="workspace-grid">
+          <Card className="map-panel" appearance="filled-alternative">
+            <div className="panel-heading">
+              <div className="panel-copy">
+                <Caption1 className="eyebrow">SOLUTION CONTENTS</Caption1>
+                <Title2 className="panel-title">Dual Write maps</Title2>
+              </div>
+              {selectedSolutionId && maps && (
+                <Badge appearance="tint" color="informative">{maps.length}</Badge>
+              )}
+            </div>
+            <div className="map-list-body">
+              {solutionsLoading || mapsLoading ? (
+                <div className="panel-placeholder">
+                  <ProgressBar />
+                  <Caption1>Loading map library…</Caption1>
+                </div>
+              ) : !connection ? (
+                <div className="panel-placeholder">
+                  <PlugDisconnected20Regular />
+                  <Text weight="semibold">Waiting for a connection</Text>
+                  <Caption1>Connect an environment to browse its solutions.</Caption1>
+                </div>
+              ) : !selectedSolutionId ? (
+                <div className="panel-placeholder">
+                  <Text weight="semibold">Choose a solution</Text>
+                  <Caption1>Your Dual Write maps will appear here.</Caption1>
+                </div>
+              ) : (
+                <DualWriteMapList
+                  dualwritemaps={maps}
+                  onMapSelected={(data) => setSelectedMap(data.dualwritemap)}
+                />
+              )}
+            </div>
+          </Card>
+
+          <Card className="preview-panel" appearance="filled-alternative">
+            {selectedMap ? (
+              <DualWriteMapPreview dualwritemap={selectedMap} />
+            ) : (
+              <div className="preview-empty">
+                <div className="preview-glyph" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <i />
+                </div>
+                <Caption1 className="eyebrow">MAP DOCUMENTATION</Caption1>
+                <Title2 className="panel-title">Your map, made readable.</Title2>
+                <Text>
+                  Select a Dual Write map to inspect its field mappings, sync direction,
+                  value maps, source JSON, and generated diagram.
+                </Text>
+                {selectedSolutionId && maps?.length === 0 && (
+                  <Button appearance="subtle" onClick={refresh}>Refresh solution data</Button>
+                )}
+              </div>
+            )}
+          </Card>
         </div>
-      </div>
+      </main>
     </FluentProvider>
   );
 }

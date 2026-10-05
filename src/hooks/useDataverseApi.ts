@@ -15,15 +15,29 @@ export type DualWriteMap = {
   Mapping: string;
 };
 
-export const useSolutionList = (deps: React.DependencyList) => {
+export const useSolutionList = (
+  enabled: boolean,
+  connectionId: string | undefined,
+  refreshKey: number,
+) => {
   const [solutions, setSolutions] = useState<Solution[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const { addLog } = useEventLog();
 
   useEffect(() => {
+    if (!enabled) {
+      setSolutions([]);
+      setIsLoading(false);
+      setMessage("");
+      setError("");
+      return;
+    }
+
     setIsLoading(true);
     setMessage("Loading solutions...");
+    setError("");
     window.dataverseAPI
       .getSolutions(
         ["solutionid", "uniquename", "friendlyname", "version", "ismanaged"],
@@ -45,26 +59,41 @@ export const useSolutionList = (deps: React.DependencyList) => {
         );
       })
       .catch((error) => {
-        addLog("Error fetching solutions: " + error.message, "error");
+        const detail = error instanceof Error ? error.message : String(error);
+        const friendlyMessage = detail.includes("No connection found")
+          ? "ToolBox could not find a connection for this tool. Close and reopen the tool with a Dataverse environment selected."
+          : `Could not load solutions: ${detail}`;
+        setError(friendlyMessage);
+        addLog("Error fetching solutions: " + detail, "error");
       })
       .finally(() => {
         setIsLoading(false);
         setMessage("");
       });
-  }, deps);
+  }, [enabled, connectionId, refreshKey]);
 
-  return { solutions, isLoading, message };
+  return { solutions, isLoading, message, error };
 };
 
 export const useDualWriteMaps = (solutionId?: string) => {
   const [maps, setMaps] = useState<DualWriteMap[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const { addLog } = useEventLog();
 
   useEffect(() => {
+    if (!solutionId) {
+      setMaps(undefined);
+      setIsLoading(false);
+      setMessage("");
+      setError("");
+      return;
+    }
+
     setIsLoading(true);
     setMessage("Loading dual write maps...");
+    setError("");
     window.dataverseAPI
       .queryData(
         `msdyn_dualwriteentitymaps?$select=msdyn_dualwriteentitymapid,msdyn_displayname,msdyn_mapping,solutionid&$filter=solutionid eq ${solutionId}`,
@@ -83,7 +112,12 @@ export const useDualWriteMaps = (solutionId?: string) => {
         );
       })
       .catch((error) => {
-        addLog("Error fetching dual write maps: " + error.message, "error");
+        const detail = error instanceof Error ? error.message : String(error);
+        const friendlyMessage = detail.includes("No connection found")
+          ? "ToolBox could not find a connection for this tool. Close and reopen the tool with a Dataverse environment selected."
+          : `Could not load Dual Write maps: ${detail}`;
+        setError(friendlyMessage);
+        addLog("Error fetching dual write maps: " + detail, "error");
       })
       .finally(() => {
         setIsLoading(false);
@@ -91,5 +125,5 @@ export const useDualWriteMaps = (solutionId?: string) => {
       });
   }, [solutionId]);
 
-  return { maps, isLoading, message };
+  return { maps, isLoading, message, error };
 };

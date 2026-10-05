@@ -234,6 +234,7 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
           "{{#legs}}  ",
           "Source Schema      : **{{sourceSchema}}**  ",
           "Destination Schema : **{{destinationSchema}}**  ",
+          "Source Filter      : **{{sourceFilter}}**  ",
           "<br /><br />",
           "### Mapping Details",
           "| Source Field | Direction | Destination Field | Default Value |   ",
@@ -280,6 +281,7 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
           ...{ valueMaps: valueMapKeys.filter((v: any) => v.name) },
         };
         newView.legs.forEach((leg: any) => {
+          leg.sourceFilter = leg.sourceFilter || "N/A";
           leg.fieldMappings.forEach((fm: any) => {
             if (fm.syncDirection === "1") {
               fm.syncDirection = "->";
