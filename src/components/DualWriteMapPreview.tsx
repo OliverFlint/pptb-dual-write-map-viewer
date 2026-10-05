@@ -278,6 +278,11 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
         const sourceSchema = view?.legs?.[0]?.sourceSchema || "Source";
         const destinationSchema =
           view?.legs?.[0]?.destinationSchema || "Destination";
+        const sourceFilter = view?.legs?.[0]?.sourceFilter || "N/A";
+        const safeSourceFilter = String(sourceFilter)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "#quot;")
+          .replace(/\r?\n/g, "<br/>");
         const fieldMappings = view?.legs?.[0]?.fieldMappings || [];
 
         let mdCode = "graph LR\n";
@@ -289,6 +294,7 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
             mdCode += `        src${index}["Default Value:${fm.valueTransforms?.[0]?.defaultValue || ""}"]\n`;
           }
         });
+        mdCode += `        sourceFilter@{ shape: comment, label: "Source Filter: ${safeSourceFilter}" }\n`;
         mdCode += "    end\n";
         mdCode += `    subgraph ${destinationSchema}\n`;
         fieldMappings.forEach((fm: any, index: number) => {
