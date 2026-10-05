@@ -8,7 +8,7 @@ export type LogEntry = {
 
 export function useConnection() {
   const [connection, setConnection] =
-    useState<ToolBoxAPI.DataverseConnection | null>(null);
+    useState<ToolBoxAPI.Connection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshConnection = useCallback(async () => {
@@ -38,8 +38,7 @@ export function useToolboxEvents(onEvent: (event: string, data: any) => void) {
     window.toolboxAPI.events.on(handler);
 
     return () => {
-      // Note: Current API doesn't support unsubscribe
-      // This would need to be added to the API
+      window.toolboxAPI.events.off(handler);
     };
   }, [onEvent]);
 }
