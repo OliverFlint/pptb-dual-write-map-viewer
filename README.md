@@ -2,11 +2,11 @@
 
 Dual Write Map Viewer is a Power Platform ToolBox tool for exploring and documenting Microsoft Dataverse Dual Write maps. Choose a solution to browse its maps, inspect how fields synchronize, and export documentation for a selected map or the entire solution.
 
-![Dual Write Map Viewer showing solution maps and the details for a selected map](public/dual-write-map-viewer.png)
+![Dual Write Map Viewer showing solution maps and the details for a selected map](https://raw.githubusercontent.com/OliverFlint/pptb-dual-write-map-viewer/master/public/dual-write-map-viewer.png)
 
 *Details view: inspect schema information, field mappings, and value transforms.*
 
-![Dual Write Map Viewer showing a selected map in the Mermaid diagram view](public/dual-write-map-viewer-diagram.png)
+![Dual Write Map Viewer showing a selected map in the Mermaid diagram view](https://raw.githubusercontent.com/OliverFlint/pptb-dual-write-map-viewer/master/public/dual-write-map-viewer-diagram.png)
 
 *Diagram view: visualize field mappings and value transforms.*
 
