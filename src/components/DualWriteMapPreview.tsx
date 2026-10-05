@@ -22,9 +22,9 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import mustache from "mustache";
 import rehypeRaw from "rehype-raw";
 import mermaid, { RenderResult } from "mermaid";
+import { generateMapMarkdown } from "../utils/generateMapMarkdown";
 
 const useStyles = makeStyles({
   header: {
@@ -228,72 +228,7 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
         return;
       }
       try {
-        const template = [
-          "## {{name}}  ",
-          "<br /><br />",
-          "{{#legs}}  ",
-          "Source Schema      : **{{sourceSchema}}**  ",
-          "Destination Schema : **{{destinationSchema}}**  ",
-          "Source Filter      : **{{sourceFilter}}**  ",
-          "<br /><br />",
-          "### Mapping Details",
-          "| Source Field | Direction | Destination Field | Default Value |   ",
-          "| :- | :-: | :- | :- |",
-          "{{#fieldMappings}}",
-          "| {{sourceField}} | {{syncDirection}} | {{destinationField}} | {{#valueTransforms}}{{defaultValue}}{{/valueTransforms}} |",
-          "{{/fieldMappings}}",
-          "{{/legs}}",
-          "<br /><br />",
-          "### Value Transforms  ",
-          "{{#valueMaps}}",
-          "##### {{name}}  ",
-          "| D365 | - | Dataverse |  ",
-          "| :- | - | -: |",
-          "{{#valueMap}}",
-          "| ` {{key}} ` || ` {{value}} ` |  ",
-          "{{/valueMap}}",
-          "{{/valueMaps}}",
-          "{{^valueMaps}}",
-          "No value transforms defined.",
-          "{{/valueMaps}}",
-        ].join("\n");
-        const view = JSON.parse(dualwritemap?.Mapping || "{}");
-        const valueMapKeys = view.legs?.flatMap((leg: any) =>
-          leg.fieldMappings?.flatMap((fm: any) =>
-            fm.valueTransforms
-              ? fm.valueTransforms.flatMap((vt: any) => {
-                  if (vt.valueMap && vt.transformType === "ValueMap") {
-                    const keys = Object.keys(vt.valueMap);
-                    return {
-                      name: `${fm.sourceField} = ${fm.destinationField}`,
-                      valueMap: keys
-                        .map((k) => ({ key: k, value: vt.valueMap[k] }))
-                        .sort((a: any, b: any) => a.key.localeCompare(b.key)),
-                    };
-                  }
-                  return {};
-                })
-              : [],
-          ),
-        );
-        const newView = {
-          ...view,
-          ...{ valueMaps: valueMapKeys.filter((v: any) => v.name) },
-        };
-        newView.legs.forEach((leg: any) => {
-          leg.sourceFilter = leg.sourceFilter || "N/A";
-          leg.fieldMappings.forEach((fm: any) => {
-            if (fm.syncDirection === "1") {
-              fm.syncDirection = "->";
-            } else if (fm.syncDirection === "2") {
-              fm.syncDirection = "<-";
-            } else {
-              fm.syncDirection = "<->";
-            }
-          });
-        });
-        const output = mustache.render(template, newView);
-        setRenderedMarkdown(output);
+        setRenderedMarkdown(generateMapMarkdown(dualwritemap));
       } catch (error: any) {
         setRenderedMarkdown("Error rendering details: " + error.message);
       }

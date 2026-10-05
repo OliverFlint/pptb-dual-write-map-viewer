@@ -17,6 +17,7 @@ import {
 } from "@fluentui/react-components";
 import {
   ArrowCounterclockwiseFilled,
+  ArrowDownload20Regular,
   PlugConnected20Regular,
   PlugDisconnected20Regular,
 } from "@fluentui/react-icons";
@@ -33,6 +34,15 @@ import {
   useSolutionList,
 } from "./hooks/useDataverseApi";
 import { DualWriteMapPreview } from "./components/DualWriteMapPreview";
+import { generateMapMarkdown } from "./utils/generateMapMarkdown";
+
+function safeMarkdownFilename(name: string): string {
+  const safeName = name
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
+    .replace(/[. ]+$/g, "")
+    .trim();
+  return `${safeName || "dual-write-map"}.md`;
+}
 
 function App() {
   const { connection, isLoading: connectionLoading, refreshConnection } = useConnection();
@@ -53,6 +63,12 @@ function App() {
     error: mapsError,
   } = useDualWriteMaps(selectedSolutionId);
   const [selectedMap, setSelectedMap] = useState<DualWriteMap | undefined>();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportFeedback, setExportFeedback] = useState<{
+    intent: "success" | "error" | "info";
+    title: string;
+    message: string;
+  }>();
 
   const handleEvent = useCallback(
     (event: string) => {
@@ -84,6 +100,86 @@ function App() {
     setSelectedSolutionId(undefined);
     setSelectedMap(undefined);
     setSolutionRefresh((previous) => previous + 1);
+  };
+
+  const exportSelectedMap = async () => {
+    if (!selectedMap) return;
+    setIsExporting(true);
+    setExportFeedback(undefined);
+    try {
+      const markdown = generateMapMarkdown(selectedMap);
+      const path = await window.toolboxAPI.fileSystem.saveFile(
+        safeMarkdownFilename(selectedMap.Name),
+        markdown,
+        [{ name: "Markdown", extensions: ["md"] }],
+      );
+      setExportFeedback(
+        path
+          ? { intent: "success", title: "Export complete", message: `Saved ${selectedMap.Name}.` }
+          : { intent: "info", title: "Export cancelled", message: "No file was saved." },
+      );
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setExportFeedback({ intent: "error", title: "Export failed", message: detail });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const exportAllMaps = async () => {
+    if (!maps?.length) return;
+    setIsExporting(true);
+    setExportFeedback(undefined);
+    try {
+      const files = maps.map((map) => ({
+        filename: safeMarkdownFilename(map.Name),
+        markdown: generateMapMarkdown(map),
+        mapName: map.Name,
+      }));
+      const usedFilenames = new Set<string>();
+      for (const file of files) {
+        const extensionIndex = file.filename.toLowerCase().lastIndexOf(".md");
+        const baseName = file.filename.slice(0, extensionIndex);
+        let filename = file.filename;
+        let suffix = 2;
+        while (usedFilenames.has(filename.toLowerCase())) {
+          filename = `${baseName}-${suffix++}.md`;
+        }
+        file.filename = filename;
+        usedFilenames.add(filename.toLowerCase());
+      }
+
+      const folder = await window.toolboxAPI.fileSystem.selectPath({
+        type: "folder",
+        title: "Choose a folder for the Markdown exports",
+        buttonLabel: "Export here",
+      });
+      if (!folder) {
+        setExportFeedback({ intent: "info", title: "Export cancelled", message: "No files were saved." });
+        return;
+      }
+
+      const separator = folder.includes("\\") ? "\\" : "/";
+      const folderPath = folder.endsWith(separator) ? folder : `${folder}${separator}`;
+      let written = 0;
+      for (const file of files) {
+        await window.toolboxAPI.fileSystem.writeText(
+          `${folderPath}${file.filename}`,
+          file.markdown,
+        );
+        written += 1;
+      }
+      setExportFeedback({
+        intent: "success",
+        title: "Export complete",
+        message: `Saved ${written} Markdown ${written === 1 ? "file" : "files"} to ${folder}.`,
+      });
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setExportFeedback({ intent: "error", title: "Export failed", message: detail });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -140,7 +236,32 @@ function App() {
           >
             Refresh
           </ToolbarButton>
+          <Button
+            appearance="secondary"
+            icon={<ArrowDownload20Regular />}
+            disabled={!selectedMap || isExporting}
+            onClick={exportSelectedMap}
+          >
+            Export selected
+          </Button>
+          <Button
+            appearance="primary"
+            icon={<ArrowDownload20Regular />}
+            disabled={!selectedSolutionId || !maps?.length || mapsLoading || isExporting}
+            onClick={exportAllMaps}
+          >
+            {isExporting ? "Exporting…" : "Export all maps"}
+          </Button>
         </section>
+
+        {exportFeedback && (
+          <MessageBar intent={exportFeedback.intent} className="status-message">
+            <MessageBarBody>
+              <MessageBarTitle>{exportFeedback.title}</MessageBarTitle>
+              {exportFeedback.message}
+            </MessageBarBody>
+          </MessageBar>
+        )}
 
         {solutionsError && (
           <MessageBar intent="error" className="status-message">
