@@ -1,104 +1,82 @@
 # Dual Write Map Viewer
 
-A Power Platform ToolBox tool for visualising and documenting Dual Write maps in Microsoft Dataverse.
+Dual Write Map Viewer is a Power Platform ToolBox tool for exploring and documenting Microsoft Dataverse Dual Write maps. Choose a solution to browse its maps, inspect how fields synchronize, and export documentation for a selected map or the entire solution.
 
 ## Features
 
-- ✅ **Solution Filtering** - Select a solution to view only its Dual-Write maps
-- ✅ **Interactive Map Viewer** - Browse and select Dual Write maps from a solution
-- ✅ **Multiple View Tabs**:
-  - **Details** - View field mappings with sync directions (→, ←, ⇆), default values, and value maps
-  - **Markdown** - Generate formatted markdown documentation of the mapping
-  - **Diagram** - Mermaid diagram generation
-  - **Source** - View the raw JSON mapping data
-- ✅ **React 18 with TypeScript** - Modern UI framework with type safety
-- ✅ **Fluent UI Components** - Microsoft Fluent design system
-- ✅ **ToolBox API Integration** - Connection handling, notifications, and theme support
-- ✅ **Dark/Light Theme Support** - Automatically follows ToolBox theme settings
+- **Browse by solution** — Load solutions from the connected Dataverse environment and see the Dual Write maps associated with a selected solution.
+- **Inspect map details** — Review source and destination schemas, source filters, field mappings, synchronization direction, default values, and value maps.
+- **Read generated documentation** — Preview the generated Markdown, including schema details, source filters, field mappings, and value transforms.
+- **View diagrams** — Preview the map as a Mermaid flowchart or inspect its Mermaid source. The diagram includes the source filter as a note.
+- **Inspect source data** — View the map's raw JSON.
+- **Export maps** — Export the selected map or all maps in the selected solution as Markdown (`.md`), Mermaid (`.mmd`), or both. The tool suggests a filename for a single file and asks for a destination folder when exporting multiple files.
+- **Follow ToolBox appearance** — The interface follows the host's light or dark theme and shows connection, loading, and error states.
 
-## Installation
+## Use the tool
 
-Install the Power Platform ToolBox @ https://www.powerplatformtoolbox.com/ and select the 'Dual Write Map Viewer' tool from the marketplace.
+1. Open Dual Write Map Viewer in Power Platform ToolBox with a Dataverse environment connected.
+2. Choose a solution from **Browse by solution**.
+3. Select a map in the **Dual Write maps** panel.
+4. Use the **Details**, **Markdown**, **Diagram**, and **Source** tabs to explore the map.
+5. Use **Export selected** to export the open map, or **Export all maps** to export every map in the chosen solution. Choose Markdown, Diagram, or Both from the export menu.
 
-## Usage
+For a single selected file, ToolBox opens a save dialog. For a batch export or a Both export, choose a folder; the tool writes separate files for each format and resolves duplicate filenames with numeric suffixes.
 
-1. Connect to a Dataverse environment using Power Platform ToolBox
-2. Select a solution from the dropdown to view its Dual Write maps
-3. Click on a map to view its details in the preview panel
-4. Use the tabs to switch between:
-   - **Details** - Field mappings, value maps, and sync directions
-   - **Markdown** - Copy-paste ready documentation
-   - **Source** - Raw JSON mapping data
-   - **Diagram** - Mermaid diagram generation
+## Requirements
 
-## Structure
+- Power Platform ToolBox API 1.2.0 or later (the tool's declared `minAPI`).
+- A connected Dataverse environment with access to solutions and Dual Write map records.
+- Node.js 18 or later to develop and build the project.
 
-```
-pptb-dual-write-map-viewer/
-├── src/
-│   ├── App.tsx              # Main application component
-│   ├── main.tsx             # React entry point
-│   ├── index.css            # Global styles
-│   ├── hooks/
-│   │   ├── useDataverseApi.ts   # Dataverse API hooks for solutions and maps
-│   │   └── useToolboxAPI.ts     # ToolBox API hooks
-│   ├── components/
-│   │   ├── DualWriteMapList.tsx      # List of Dual-Write maps in selected solution
-│   │   ├── DualWriteMapPreview.tsx   # Multi-tab preview component
-│   │   └── SolutionPicker.tsx        # Solution selection dropdown
-│   └── icons/
-│       └── app-icon.svg         # Tool icon
-├── dist/                    # Build output
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
+## Project changelog
 
-## Development
+### 1.1.0 — 2026-10-05
 
-Install dependencies:
+- Added Markdown and Mermaid exports for a selected map or all maps in a solution.
+- Added source filters to Markdown and Mermaid diagram views.
+- Improved connection feedback, loading states, and the map browsing layout.
+- Updated the ToolBox type dependency and replaced deprecated connection typing.
 
-```bash
-npm install
-```
+### 1.0.1 — 2026-07-03
 
-Start development server with HMR:
+- UI improvements.
 
-```bash
-npm run dev
-```
+### 1.0.0 — 2026-07-02
 
-Build the tool:
+- Added Mermaid diagram generation for Dual Write maps.
+- Replaced deprecated loading API usage in the ToolBox integration.
 
-```bash
-npm run build
-```
+### 0.0.3 — 2026-03-25
 
-Preview production build:
+- Added solution filtering, interactive map browsing, map details, and Markdown and diagram views.
+- Added React, TypeScript, Fluent UI, ToolBox integration, and host theme support.
 
-```bash
-npm run preview
-```
-
-### Building and Installing
-
-1. Build the tool: `npm run build`
-2. Package the `dist/` folder
-3. Install in ToolBox
-4. Load and use from the ToolBox interface
-
-## Technical Details
-
-### Dependencies
-
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Fluent UI** React Components for the UI
-- **Mustache** for template rendering
-- **React Markdown** for documentation generation
-- **React Syntax Highlighter** for code display
+See [CHANGELOG.md](CHANGELOG.md) for the maintained project history.
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md).
+
+```text
+MIT License
+
+Copyright (c) 2026
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

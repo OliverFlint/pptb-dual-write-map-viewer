@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-10-05
+
+### Added
+
+- Export a selected map or all maps in a solution as Markdown, Mermaid source, or both.
+- Include source filters in generated Markdown and Mermaid diagrams.
+- Add visible connection feedback, export results, and clearer loading and empty states.
+
+### Changed
+
+- Update `@pptb/types` and use the current ToolBox connection type and event cleanup API.
+- Refresh the application layout and presentation.
+
 ## [1.0.1] - 2026-07-03
 
 ### Added
