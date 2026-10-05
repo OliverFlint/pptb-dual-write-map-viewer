@@ -23,8 +23,9 @@ import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import mermaid, { RenderResult } from "mermaid";
+import mermaid from "mermaid";
 import { generateMapMarkdown } from "../utils/generateMapMarkdown";
+import { generateMapDiagram } from "../utils/generateMapDiagram";
 
 const useStyles = makeStyles({
   header: {
@@ -274,75 +275,17 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
         return;
       }
       try {
-        const view = JSON.parse(dualwritemap.Mapping || "{}");
-        const sourceSchema = view?.legs?.[0]?.sourceSchema || "Source";
-        const destinationSchema =
-          view?.legs?.[0]?.destinationSchema || "Destination";
-        const sourceFilter = view?.legs?.[0]?.sourceFilter || "N/A";
-        const safeSourceFilter = String(sourceFilter)
-          .replace(/&/g, "&amp;")
-          .replace(/"/g, "#quot;")
-          .replace(/\r?\n/g, "<br/>");
-        const fieldMappings = view?.legs?.[0]?.fieldMappings || [];
-
-        let mdCode = "graph LR\n";
-        mdCode += `    subgraph ${sourceSchema}\n`;
-        fieldMappings.forEach((fm: any, index: number) => {
-          if (fm.sourceField) {
-            mdCode += `        src${index}["${fm.sourceField}"]\n`;
-          } else {
-            mdCode += `        src${index}["Default Value:${fm.valueTransforms?.[0]?.defaultValue || ""}"]\n`;
-          }
-        });
-        mdCode += `        sourceFilter@{ shape: comment, label: "Source Filter: ${safeSourceFilter}" }\n`;
-        mdCode += "    end\n";
-        mdCode += `    subgraph ${destinationSchema}\n`;
-        fieldMappings.forEach((fm: any, index: number) => {
-          if (fm.destinationField) {
-            mdCode += `        dst${index}["${fm.destinationField}"]\n`;
-          } else {
-            mdCode += `        dst${index}["Default Value:${fm.valueTransforms?.[0]?.defaultValue || ""}"]\n`;
-          }
-        });
-        mdCode += "    end\n\n";
-
-        fieldMappings.forEach((fm: any, index: number) => {
-          const vt = fm.valueTransforms?.find(
-            (v: any) => v.transformType === "ValueMap",
-          );
-
-          if (vt?.valueMap) {
-            const mapEntries = Object.entries(vt.valueMap || {})
-              .map(([k, v]) => `${k} → ${v}`)
-              .join("<br/>");
-            mdCode += `    vm${index}["${mapEntries}"]\n`;
-            if (fm.syncDirection === "1") {
-              mdCode += `    src${index} --> vm${index}\n`;
-              mdCode += `    vm${index} --> dst${index}\n`;
-            } else if (fm.syncDirection === "2") {
-              mdCode += `    dst${index} --> vm${index}\n`;
-              mdCode += `    vm${index} --> src${index}\n`;
-            } else {
-              mdCode += `    src${index} <--> vm${index}\n`;
-              mdCode += `    vm${index} <--> dst${index}\n`;
-            }
-          } else {
-            if (fm.syncDirection === "1") {
-              mdCode += `    src${index} --> dst${index}\n`;
-            } else if (fm.syncDirection === "2") {
-              mdCode += `    dst${index} --> src${index}\n`;
-            } else {
-              mdCode += `    src${index} <--> dst${index}\n`;
-            }
-          }
-        });
-
+        const mdCode = generateMapDiagram(dualwritemap);
+        setMermaidCode(mdCode);
         mermaid.initialize({ startOnLoad: false });
         mermaid
           .render("mermaid-diagram", mdCode)
-          .then((result: RenderResult) => {
+          .then((result) => {
             setSvgContent(result.svg);
-            setMermaidCode(mdCode);
+          })
+          .catch((error: unknown) => {
+            const detail = error instanceof Error ? error.message : String(error);
+            setSvgContent(`<p style="color: red;">Error generating diagram: ${detail}</p>`);
           });
       } catch (error: any) {
         setSvgContent(

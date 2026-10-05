@@ -8,6 +8,11 @@ import {
   MessageBar,
   MessageBarBody,
   MessageBarTitle,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
   ProgressBar,
   Text,
   Title2,
@@ -18,6 +23,7 @@ import {
 import {
   ArrowCounterclockwiseFilled,
   ArrowDownload20Regular,
+  ChevronDown20Regular,
   PlugConnected20Regular,
   PlugDisconnected20Regular,
 } from "@fluentui/react-icons";
@@ -35,13 +41,16 @@ import {
 } from "./hooks/useDataverseApi";
 import { DualWriteMapPreview } from "./components/DualWriteMapPreview";
 import { generateMapMarkdown } from "./utils/generateMapMarkdown";
+import { generateMapDiagram } from "./utils/generateMapDiagram";
 
-function safeMarkdownFilename(name: string): string {
+type ExportFormat = "markdown" | "diagram" | "both";
+
+function safeFilename(name: string, extension: "md" | "mmd"): string {
   const safeName = name
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
     .replace(/[. ]+$/g, "")
     .trim();
-  return `${safeName || "dual-write-map"}.md`;
+  return `${safeName || "dual-write-map"}.${extension}`;
 }
 
 function App() {
@@ -102,56 +111,66 @@ function App() {
     setSolutionRefresh((previous) => previous + 1);
   };
 
-  const exportSelectedMap = async () => {
-    if (!selectedMap) return;
+  const exportMapSet = async (
+    targetMaps: DualWriteMap[],
+    format: ExportFormat,
+    exportAll: boolean,
+  ) => {
+    if (!targetMaps.length) return;
     setIsExporting(true);
     setExportFeedback(undefined);
     try {
-      const markdown = generateMapMarkdown(selectedMap);
-      const path = await window.toolboxAPI.fileSystem.saveFile(
-        safeMarkdownFilename(selectedMap.Name),
-        markdown,
-        [{ name: "Markdown", extensions: ["md"] }],
-      );
-      setExportFeedback(
-        path
-          ? { intent: "success", title: "Export complete", message: `Saved ${selectedMap.Name}.` }
-          : { intent: "info", title: "Export cancelled", message: "No file was saved." },
-      );
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error);
-      setExportFeedback({ intent: "error", title: "Export failed", message: detail });
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const exportAllMaps = async () => {
-    if (!maps?.length) return;
-    setIsExporting(true);
-    setExportFeedback(undefined);
-    try {
-      const files = maps.map((map) => ({
-        filename: safeMarkdownFilename(map.Name),
-        markdown: generateMapMarkdown(map),
-        mapName: map.Name,
-      }));
+      const files = targetMaps.flatMap((map) => {
+        const generated: { filename: string; content: string; type: string }[] = [];
+        if (format === "markdown" || format === "both") {
+          generated.push({
+            filename: safeFilename(map.Name, "md"),
+            content: generateMapMarkdown(map),
+            type: "Markdown",
+          });
+        }
+        if (format === "diagram" || format === "both") {
+          generated.push({
+            filename: safeFilename(map.Name, "mmd"),
+            content: generateMapDiagram(map),
+            type: "Mermaid diagram",
+          });
+        }
+        return generated;
+      });
       const usedFilenames = new Set<string>();
       for (const file of files) {
-        const extensionIndex = file.filename.toLowerCase().lastIndexOf(".md");
+        const extensionIndex = file.filename.lastIndexOf(".");
         const baseName = file.filename.slice(0, extensionIndex);
+        const extension = file.filename.slice(extensionIndex);
         let filename = file.filename;
         let suffix = 2;
         while (usedFilenames.has(filename.toLowerCase())) {
-          filename = `${baseName}-${suffix++}.md`;
+          filename = `${baseName}-${suffix++}${extension}`;
         }
         file.filename = filename;
         usedFilenames.add(filename.toLowerCase());
       }
 
+      if (!exportAll && files.length === 1) {
+        const file = files[0];
+        const extension = file.filename.split(".").pop() || "md";
+        const path = await window.toolboxAPI.fileSystem.saveFile(
+          file.filename,
+          file.content,
+          [{ name: file.type, extensions: [extension] }],
+        );
+        setExportFeedback(
+          path
+            ? { intent: "success", title: "Export complete", message: `Saved ${file.filename}.` }
+            : { intent: "info", title: "Export cancelled", message: "No file was saved." },
+        );
+        return;
+      }
+
       const folder = await window.toolboxAPI.fileSystem.selectPath({
         type: "folder",
-        title: "Choose a folder for the Markdown exports",
+        title: `Choose a folder for ${format === "both" ? "Markdown and diagram" : format === "diagram" ? "Mermaid diagram" : "Markdown"} exports`,
         buttonLabel: "Export here",
       });
       if (!folder) {
@@ -165,14 +184,14 @@ function App() {
       for (const file of files) {
         await window.toolboxAPI.fileSystem.writeText(
           `${folderPath}${file.filename}`,
-          file.markdown,
+          file.content,
         );
         written += 1;
       }
       setExportFeedback({
         intent: "success",
         title: "Export complete",
-        message: `Saved ${written} Markdown ${written === 1 ? "file" : "files"} to ${folder}.`,
+        message: `Saved ${written} ${written === 1 ? "file" : "files"} to ${folder}.`,
       });
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
@@ -180,6 +199,14 @@ function App() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const exportSelectedMap = (format: ExportFormat) => {
+    if (selectedMap) void exportMapSet([selectedMap], format, false);
+  };
+
+  const exportAllMaps = (format: ExportFormat) => {
+    if (maps?.length) void exportMapSet(maps, format, true);
   };
 
   return (
@@ -236,22 +263,44 @@ function App() {
           >
             Refresh
           </ToolbarButton>
-          <Button
-            appearance="secondary"
-            icon={<ArrowDownload20Regular />}
-            disabled={!selectedMap || isExporting}
-            onClick={exportSelectedMap}
-          >
-            Export selected
-          </Button>
-          <Button
-            appearance="primary"
-            icon={<ArrowDownload20Regular />}
-            disabled={!selectedSolutionId || !maps?.length || mapsLoading || isExporting}
-            onClick={exportAllMaps}
-          >
-            {isExporting ? "Exporting…" : "Export all maps"}
-          </Button>
+          <Menu>
+            <MenuTrigger disableButtonEnhancement>
+              <Button
+                appearance="secondary"
+                icon={<ChevronDown20Regular />}
+                iconPosition="after"
+                disabled={!selectedMap || isExporting}
+              >
+                Export selected
+              </Button>
+            </MenuTrigger>
+            <MenuPopover>
+              <MenuList>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportSelectedMap("markdown")}>Markdown (.md)</MenuItem>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportSelectedMap("diagram")}>Diagram (.mmd)</MenuItem>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportSelectedMap("both")}>Both formats</MenuItem>
+              </MenuList>
+            </MenuPopover>
+          </Menu>
+          <Menu>
+            <MenuTrigger disableButtonEnhancement>
+              <Button
+                appearance="primary"
+                icon={<ChevronDown20Regular />}
+                iconPosition="after"
+                disabled={!selectedSolutionId || !maps?.length || mapsLoading || isExporting}
+              >
+                {isExporting ? "Exporting…" : "Export all maps"}
+              </Button>
+            </MenuTrigger>
+            <MenuPopover>
+              <MenuList>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportAllMaps("markdown")}>Markdown (.md)</MenuItem>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportAllMaps("diagram")}>Diagram (.mmd)</MenuItem>
+                <MenuItem icon={<ArrowDownload20Regular />} onClick={() => exportAllMaps("both")}>Both formats</MenuItem>
+              </MenuList>
+            </MenuPopover>
+          </Menu>
         </section>
 
         {exportFeedback && (
