@@ -394,7 +394,7 @@ function App() {
 
           <Card className="preview-panel" appearance="filled-alternative">
             {selectedMap ? (
-              <DualWriteMapPreview dualwritemap={selectedMap} />
+              <DualWriteMapPreview dualwritemap={selectedMap} theme={theme} />
             ) : (
               <div className="preview-empty">
                 <div className="preview-glyph" aria-hidden="true">

@@ -71,10 +71,11 @@ const useStyles = makeStyles({
 
 export interface DualWriteMapPreview {
   dualwritemap?: DualWriteMap;
+  theme?: "light" | "dark";
 }
 
 export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
-  const { dualwritemap } = props;
+  const { dualwritemap, theme = "light" } = props;
   const styles = useStyles();
   const [selectedTab, setSelectedTab] = useState<TabValue>("detailTab");
 
@@ -277,7 +278,13 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
       try {
         const mdCode = generateMapDiagram(dualwritemap);
         setMermaidCode(mdCode);
-        mermaid.initialize({ startOnLoad: false });
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          themeVariables: {
+            lineColor: theme === "dark" ? "#66d9ef" : "#0078d4",
+          },
+        });
         mermaid
           .render("mermaid-diagram", mdCode)
           .then((result) => {
@@ -292,7 +299,7 @@ export const DualWriteMapPreview = (props: DualWriteMapPreview) => {
           `<p style="color: red;">Error generating diagram: ${error.message}</p>`,
         );
       }
-    }, [dualwritemap]);
+    }, [dualwritemap, theme]);
 
     return (
       <div>
