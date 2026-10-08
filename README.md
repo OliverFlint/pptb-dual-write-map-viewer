@@ -15,7 +15,7 @@ Dual Write Map Viewer is a Power Platform ToolBox tool for exploring and documen
 - **Browse by solution** — Load solutions from the connected Dataverse environment and see the Dual Write maps associated with a selected solution.
 - **Inspect map details** — Review source and destination schemas, source filters, field mappings, synchronization direction, default values, and value maps.
 - **Read generated documentation** — Preview the generated Markdown, including schema details, source filters, field mappings, and value transforms.
-- **View diagrams** — Preview the map as a Mermaid flowchart or inspect its Mermaid source. The diagram includes the source filter as a note.
+- **View diagrams** — Preview the map as a Mermaid flowchart or inspect its Mermaid source. The diagram includes the source filter as a note, and connector colors adapt to the ToolBox light or dark theme for better contrast.
 - **Inspect source data** — View the map's raw JSON.
 - **Export maps** — Export the selected map or all maps in the selected solution as Markdown (`.md`), Mermaid (`.mmd`), or both. The tool suggests a filename for a single file and asks for a destination folder when exporting multiple files.
 - **Follow ToolBox appearance** — The interface follows the host's light or dark theme and shows connection, loading, and error states.
@@ -37,6 +37,11 @@ For a single selected file, ToolBox opens a save dialog. For a batch export or a
 - Node.js 18 or later to develop and build the project.
 
 ## Project changelog
+
+### 1.1.1 — 2026-10-06
+
+- Improved diagram connector visibility with colors that adapt to light and dark themes.
+- Updated the diagram screenshot to show the improved dark-mode contrast.
 
 ### 1.1.0 — 2026-10-05
 
